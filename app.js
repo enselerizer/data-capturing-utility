@@ -6,11 +6,18 @@ const {app, BrowserWindow} = require('electron')
 
     function createWindow () {
       mainWindow = new BrowserWindow({
-        width: 800,
-        height: 600,
+        width: 1280,
+        height: 720,
+        show: false,
         webPreferences: {
           nodeIntegration: true
         }
+      })
+
+      mainWindow.setMenu(null);
+
+      mainWindow.once('ready-to-show', () => {
+        mainWindow.show()
       })
 
       mainWindow.loadURL(
@@ -21,7 +28,7 @@ const {app, BrowserWindow} = require('electron')
         })
       );
       // Open the DevTools.
-      mainWindow.webContents.openDevTools()
+      //mainWindow.webContents.openDevTools()
 
       mainWindow.on('closed', function () {
         mainWindow = null
@@ -37,3 +44,7 @@ const {app, BrowserWindow} = require('electron')
     app.on('activate', function () {
       if (mainWindow === null) createWindow()
     })
+
+
+
+
