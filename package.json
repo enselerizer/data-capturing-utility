@@ -1,15 +1,21 @@
 {
   "name": "data-capturing-utility",
   "version": "0.0.0",
-  "main": "app.js",
+  "main": "dist-electron/app.js",
+  "type": "module",
   "scripts": {
     "ng": "ng",
-    "start": "ng build --base-href ./ && electron-forge start",
-    "build": "ng build",
+    "start": "ng build --base-href ./ && npm run transpile:electron-app && electron-forge start",
+    "build": "ng build --base-href ./ && npm run transpile:electron-app",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "package": "electron-forge package",
-    "make": "electron-forge make"
+    "package": "npm run transpile:electron-forge && electron-forge package",
+    "make": "npm run transpile:electron-forge && electron-forge make",
+    "build-make": "npm run build && npm run make",
+    "build-package": "npm run build && npm run package",
+    "transpile:electron-app": "tsc --project src/electron/tsconfig.json",
+    "transpile:electron-forge": "tsc --project src/electron/forge/tsconfig.json",
+    "transpile:electron-all": "npm run transpile:electron-app && npm run transpile:electron-forge"
   },
   "private": true,
   "dependencies": {
@@ -53,5 +59,8 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "typescript": "~5.7.2"
+  },
+  "config": {
+    "forge": "dist-electron/forge.config.js"
   }
 }

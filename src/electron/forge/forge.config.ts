@@ -1,7 +1,10 @@
-const { FusesPlugin } = require('@electron-forge/plugin-fuses');
-const { FuseV1Options, FuseVersion } = require('@electron/fuses');
+import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives/dist/AutoUnpackNativesPlugin.js';
+import type { ForgeConfig } from '@electron-forge/shared-types';
+import { FusesPlugin } from '@electron-forge/plugin-fuses'
+import { FuseV1Options, FuseVersion } from '@electron/fuses'
+import { MakerZIP } from '@electron-forge/maker-zip';
 
-module.exports = {
+const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
   },
@@ -11,10 +14,10 @@ module.exports = {
     //   name: '@electron-forge/maker-squirrel',
     //   config: {},
     // },
-    {
-      name: '@electron-forge/maker-zip',
-      platforms: ['win32'],
-    },
+    new MakerZIP(
+      {},
+      ['win32']
+    ),
     // {
     //   name: '@electron-forge/maker-deb',
     //   config: {},
@@ -25,10 +28,7 @@ module.exports = {
     // },
   ],
   plugins: [
-    {
-      name: '@electron-forge/plugin-auto-unpack-natives',
-      config: {},
-    },
+    new AutoUnpackNativesPlugin({}),
     // Fuses are used to enable/disable various Electron functionality
     // at package time, before code signing the application
     new FusesPlugin({
@@ -42,3 +42,5 @@ module.exports = {
     }),
   ],
 };
+
+export default config;

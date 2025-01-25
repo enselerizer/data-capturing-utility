@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
+    "outDir": "../../dist-electron",
+    "sourceMap": true,
+    "skipLibCheck": true
+  },
+  "exclude": ["forge"]
+}
