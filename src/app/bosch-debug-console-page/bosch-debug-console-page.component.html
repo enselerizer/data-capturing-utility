@@ -5,23 +5,39 @@
       <label class="form-label col-auto col-form-label">Подключиться к датчику</label>
       <div class="input-group col">
         <span class="input-group-text" id="basic-addon1">COM</span>
-        <input type="text" class="form-control" placeholder="0" />
-        <button type="button" class="btn btn-primary">Подключиться</button>
+        <input [disabled]="connectionStatus != ConnectionStatus.disconnected" (input)="setCOMPort($event)" type="number" min="1" class="form-control" placeholder="0" />
+        @if (connectionStatus === ConnectionStatus.connected) {
+          <button (click)="onClickDisconnectBtn()" type="button" class="btn btn-danger">Отключиться</button>
+        } @else {
+          <button [disabled]="connectionStatus != ConnectionStatus.disconnected" (click)="onClickConnectBtn()" type="button" class="btn btn-primary">Подключиться</button>
+        }
       </div>
     </div>
   </form>
-  <div class="badge text-bg-secondary">
-    Ожидает соединения
+  <div class="badge text-bg-secondary" [class]="{
+    'text-bg-success': connectionStatus === ConnectionStatus.connected,
+    'text-bg-warning': connectionStatus === ConnectionStatus.connecting,
+    'text-bg-danger': connectionError
+  }">
+    @if (connectionError) {
+      Ошибка подключения
+    } @else if (connectionStatus === ConnectionStatus.disconnected) {
+      Ожидает соединения
+    } @else if(connectionStatus === ConnectionStatus.connected) {
+      Соединение установлено
+    } @else if(connectionStatus === ConnectionStatus.connecting) {
+      Подключение...
+    }
   </div>
   <form class="mt-2">
     <div class="mb-3">
       <div class="input-group">
-        <input disabled type="text" class="form-control" placeholder="> ..." />
-        <button disabled type="button" class="btn btn-primary">Отправить</button>
+        <input [disabled]="connectionStatus != ConnectionStatus.connected" type="text" class="form-control" placeholder="> ..." [value]="command" />
+        <button [disabled]="connectionStatus != ConnectionStatus.connected" (click)="onClickSendBtn()" type="button" class="btn btn-primary">Отправить</button>
       </div>
     </div>
     <div class="mb-3">
-      <textarea readonly class="form-control" id="consoleResponceArea" rows="10"></textarea>
+      <textarea readonly [disabled]="connectionStatus != ConnectionStatus.connected" [value]="logBuffer" class="form-control" id="consoleResponceArea" rows="10"></textarea>
     </div>
   </form>
 </div>
