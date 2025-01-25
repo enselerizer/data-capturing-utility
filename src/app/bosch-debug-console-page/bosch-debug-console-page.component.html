@@ -1,0 +1,27 @@
+<div class="container pt-3">
+  <h1>Отладочная консоль Bosch</h1>
+  <form class="mt-3 mb-3">
+    <div class="mb-3 row">
+      <label class="form-label col-auto col-form-label">Подключиться к датчику</label>
+      <div class="input-group col">
+        <span class="input-group-text" id="basic-addon1">COM</span>
+        <input type="text" class="form-control" placeholder="0" />
+        <button type="button" class="btn btn-primary">Подключиться</button>
+      </div>
+    </div>
+  </form>
+  <div class="badge text-bg-secondary">
+    Ожидает соединения
+  </div>
+  <form class="mt-2">
+    <div class="mb-3">
+      <div class="input-group">
+        <input disabled type="text" class="form-control" placeholder="> ..." />
+        <button disabled type="button" class="btn btn-primary">Отправить</button>
+      </div>
+    </div>
+    <div class="mb-3">
+      <textarea readonly class="form-control" id="consoleResponceArea" rows="10"></textarea>
+    </div>
+  </form>
+</div>
