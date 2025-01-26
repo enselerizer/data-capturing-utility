@@ -6,6 +6,7 @@ import { Samples } from './types.js';
 
 export class BoschCiss {
   public incomingData: Subject<Samples> = new Subject<Samples>();
+  public incomingDataRaw: Subject<string> = new Subject<string>();
 
   private port: SerialPort;
   private enableDebug: boolean;
@@ -58,6 +59,7 @@ export class BoschCiss {
 
   private handleDataEvents(): void {
     this.port.on('data', (data: Buffer) => {
+      this.incomingDataRaw.next(data.toString());
       let arriveTimestamp: bigint = process.hrtime.bigint();
       if (data && !this.isFastModeACK(data)) {
         let result = this.processDataBuffer(
