@@ -7,27 +7,27 @@ A simple Node.js app for capturing multichannel data from different sensors.
 Technology stack:
 * Written completely in TypeScript
 * [Angular](https://angular.dev/) for UI
-
 * [Electron](https://www.electronjs.org/) for displaying web UI as a desktop app
+* Node.js drivers for device communication
 
 ---
 
 ## Build & Run
 
-##### Step 1 - Install required software
+#### Step 1 - Install required software
 
 Currently only Windows platform is supported for both building and running the application.
 
 You'll need to install the following software:
 
-- Node.JS
+- Node.js
 - NPM (Node Package Manager)
 - Latest version of Python 3 (3.12 or newer) ⚠️
 - Visual Studio Code 2017 or newer with C/C++ tools ⚠️
 
 ⚠️ **Note:** We use [Serialport package](https://github.com/serialport/node-serialport) for serial communication with sensors, which builds native binaries upon application build process using [node-gyp](https://github.com/nodejs/node-gyp). For this you currently need specified software.
 
-##### Step 2 - Install dependencies
+#### Step 2 - Install dependencies
 
 Install project dependencies using `npm`:
 
@@ -35,7 +35,7 @@ Install project dependencies using `npm`:
 npm install
 ```
 
-##### Step 3 - Fix bindings.cpp bug
+#### Step 3 - Fix bindings.cpp bug
 
 At the time of writing, Serialport's bindings.cpp [has a bug](https://github.com/serialport/node-serialport/issues/2957) which prevents the application from compiling. Until the bug is fixed in newer versions of Serialport, a workaround must be used.
 
@@ -67,7 +67,7 @@ To:
 'defines': ['CHECK_NODE_MODULE_VERSION', 'NOMINMAX'],
 ```
 
-##### Step 4 - Run the app
+#### Step 4 - Run the app
 
 Use `npm` to build and start the application:
 
