@@ -1,0 +1,3 @@
+textarea#logBuffer, input#command {
+  font-family:monospace !important;
+}

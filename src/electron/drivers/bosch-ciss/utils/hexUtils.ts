@@ -6,6 +6,13 @@ export function stringToHexA(input: string): number[] {
   return result;
 }
 
+export function bufferToHexA(input: Buffer): number[] {
+  let result: number[] = [];
+  input.forEach(element => {
+    result.push(Number(element))
+  });
+  return result;
+}
 
 export function hexAToString(input: number[], addHexPrefix: boolean = false): string {
   let result: string = '';

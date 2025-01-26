@@ -1,47 +1,81 @@
 import { Subject } from 'rxjs';
 import { SerialPort } from 'serialport';
 import { calcCrcBuffer, toPayload } from './utils/crc.js';
-import { hexAToString, stringToHexA, toSigned16Bit } from './utils/hexUtils.js';
-import { Samples } from './types.js';
+import { bufferToHexA, hexAToString, stringToHexA, toSigned16Bit } from './utils/hexUtils.js';
+import { PortInfo, Samples } from './types.js';
 
 export class BoschCiss {
   public incomingData: Subject<Samples> = new Subject<Samples>();
   public incomingDataRaw: Subject<string> = new Subject<string>();
+  public errorEvent: Subject<void> = new Subject<void>();
 
   private port: SerialPort;
   private enableDebug: boolean;
   private recordingBeginTimestamp: bigint = 0n;
 
-  constructor(deviceName: string, enableDebug: boolean = false) {
+
+  public static getCISSPortList(): Promise<number[]> {
+    return new Promise<number[]>((resolve) => {
+      SerialPort.list().then((ports:PortInfo[])=>{
+        let cissPorts: number[] = [];
+        ports.forEach(port => {
+          if(port.vendorId === "108C" && port.productId === "01A2") {
+            cissPorts.push(Number([...port.path.matchAll(/^COM([0-9]+)$/g)][0][1]))
+          }
+        });
+        resolve(cissPorts);
+      })
+
+    })
+
+
+
+  }
+
+  constructor(deviceName: string, enableDebug: boolean = false, callback: Function) {
     this.enableDebug = enableDebug;
-    if (this.enableDebug) console.log('[driver] [Bosch CISS] Initializing COM port');
+    if (this.enableDebug) console.log('[driver] [Bosch CISS] Initializing COM port...');
     this.port = new SerialPort({
       path: deviceName,
       baudRate: 115200
     }, (error) => {
       if (error) {
-        if (this.enableDebug) console.log('[driver] [Bosch CISS] Error on initialize COM port: ' + error);
+        if (this.enableDebug) console.log('[driver] [Bosch CISS] Error on initialize COM port: ' + error + deviceName);
+        callback(true);
+      } else {
+        if (this.enableDebug) console.log('[driver] [Bosch CISS] COM port successfully opened - ' + deviceName);
+        callback(false);
       }
     });
     this.handleDataEvents();
   }
 
   startFastMode() {
-    this.write(toPayload([0xFE, 0x06, 0x80, 0x02, 0xF4, 0x01, 0x00, 0x00]));
+    this.write(toPayload([0xFE, 0x06, 0x80, 0x02, 0xF4, 0x01, 0x00, 0x00]), 0);
     this.recordingBeginTimestamp = process.hrtime.bigint();
   }
 
   async stopFastMode() {
-    await this.write(toPayload([0xFE, 0x02, 0x80, 0x00, 0x82]));
-    if (this.port.isOpen) this.port.close();
-    this.recordingBeginTimestamp = process.hrtime.bigint();
+    await this.write(toPayload([0xFE, 0x02, 0x80, 0x00, 0x82]),50);
+    return new Promise<void>((resolve) => {
+      if (this.port.isOpen) {
+        this.port.close(() => {
+          if (this.enableDebug) console.log('[driver] [Bosch CISS] COM port successfully closed');
+          resolve();
+        });
+      } else {
+        if (this.enableDebug) console.log('[driver] [Bosch CISS] COM port successfully closed');
+        resolve();
+      }
+    });
+
   }
 
-  sendMessage(msg: number[]): void {
-    this.write(toPayload(msg));
+  sendMessage(msg: number[]): Promise<void> {
+    return this.write(toPayload(msg));
   }
-  sendMessageStr(msg: string): void {
-    this.write(toPayload(stringToHexA(msg)));
+  sendMessageStr(msg: string): Promise<void> {
+    return this.write(toPayload(stringToHexA(msg)),0)
   }
 
   private async write(data: number[], wait: number = 500): Promise<void> {
@@ -59,7 +93,7 @@ export class BoschCiss {
 
   private handleDataEvents(): void {
     this.port.on('data', (data: Buffer) => {
-      this.incomingDataRaw.next(data.toString());
+      this.incomingDataRaw.next(hexAToString(bufferToHexA(data)));
       let arriveTimestamp: bigint = process.hrtime.bigint();
       if (data && !this.isFastModeACK(data)) {
         let result = this.processDataBuffer(
@@ -67,10 +101,16 @@ export class BoschCiss {
         )
         if (result[0]) {
           this.incomingData.next(result);
-        } else console.log('mem');
+        }
 
       }
     });
+
+    this.port.on("close", (err: any) => {
+      if(err) {
+        this.errorEvent.next();
+      }
+    })
   }
 
   private processDataBuffer(input: Buffer, measurmentTimestamp: bigint): Samples {

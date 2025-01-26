@@ -22,10 +22,11 @@ export default class ElectronApp {
       height: 720,
       show: false,
       webPreferences: {
-        nodeIntegration: true
+        nodeIntegration: true,
+        contextIsolation: false
       }
     });
-    ElectronApp.mainWindow.setMenu(null);
+    //ElectronApp.mainWindow.setMenu(null);
     ElectronApp.mainWindow
       .loadURL(url.format({
         pathname: path.join(app.getAppPath(), `/dist/data-capturing-utility/browser/index.html`),
