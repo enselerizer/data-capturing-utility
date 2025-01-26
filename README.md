@@ -1,59 +1,110 @@
-# DataCapturingUtility
+# Data Capturing Utility
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.1.4.
+A simple Node.js app for capturing multichannel data from different sensors. 
 
-## Development server
+🚧 Currently in early development 🚧
 
-To start a local development server, run:
+Technology stack:
+* Written completely in TypeScript
+* [Angular](https://angular.dev/) for UI
 
-```bash
-ng serve
-```
+* [Electron](https://www.electronjs.org/) for displaying web UI as a desktop app
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+---
 
-## Code scaffolding
+## Build & Run
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+##### Step 1 - Install required software
 
-```bash
-ng generate component component-name
-```
+Currently only Windows platform is supported for both building and running the application.
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+You'll need to install the following software:
 
-```bash
-ng generate --help
-```
+- Node.JS
+- NPM (Node Package Manager)
+- Latest version of Python 3 (3.12 or newer) ⚠️
+- Visual Studio Code 2017 or newer with C/C++ tools ⚠️
 
-## Building
+⚠️ **Note:** We use [Serialport package](https://github.com/serialport/node-serialport) for serial communication with sensors, which builds native binaries upon application build process using [node-gyp](https://github.com/nodejs/node-gyp). For this you currently need specified software.
 
-To build the project run:
+##### Step 2 - Install dependencies
 
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+Install project dependencies using `npm`:
 
 ```bash
-ng test
+npm install
 ```
 
-## Running end-to-end tests
+##### Step 3 - Fix bindings.cpp bug
 
-For end-to-end (e2e) testing, run:
+At the time of writing, Serialport's bindings.cpp [has a bug](https://github.com/serialport/node-serialport/issues/2957) which prevents the application from compiling. Until the bug is fixed in newer versions of Serialport, a workaround must be used.
+
+Open `node_modules / @serialport / bindings-cpp / binding.gyp` and find the following:
+
+```
+{
+  ...
+  'targets': [{
+    ...
+    'conditions': [
+      ['OS=="win"',
+        {
+          'defines': ['CHECK_NODE_MODULE_VERSION'],
+    ...
+}
+
+```
+
+Then change:
+
+```
+'defines': ['CHECK_NODE_MODULE_VERSION'],
+```
+
+To:
+
+```
+'defines': ['CHECK_NODE_MODULE_VERSION', 'NOMINMAX'],
+```
+
+##### Step 4 - Run the app
+
+Use `npm` to build and start the application:
 
 ```bash
-ng e2e
+npm start
+```
+---
+
+## Generate distributables
+
+This project uses [Electron Forge](https://www.electronforge.io/) for packaging and distributing the application.
+
+Build Angular frontend and compile TypeScript:
+```bash
+npm run build
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Package the application:
+```bash
+npm run package
+```
 
-## Additional Resources
+Generate .zip distributables (will automatically package the application):
+```bash
+npm run make
+```
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+You also can build and package the app with a single command:
+```bash
+npm run build-package
+```
+
+Similarly for generating distributables:
+```bash
+npm run build-make
+```
+
+Generated distributables can be found in the `/out` directory.
+
+Directories `/dist` and `/dist-electron` are used for building Angular frontend and for TypeSript transpiling respectively.
