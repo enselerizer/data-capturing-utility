@@ -104,4 +104,9 @@ export class DataProviderBoschService {
   }
 
 
+  testWriteSomeDataToFileMethod() {
+    this.ipc.send("driver-BoschCISS-testWriteSomeDataToFileMethod-request", {});
+  }
+
+
 }

@@ -4,4 +4,4 @@ import { BoschCISSDriver } from './drivers/bosch-ciss/driver.js';
 
 ElectronApp.main(app, BrowserWindow);
 
-let sensor = new BoschCISSDriver(4);
+let sensor = new BoschCISSDriver();

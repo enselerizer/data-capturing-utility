@@ -4,12 +4,17 @@ import { BoschCiss } from './bosch-ciss.js'
 import ElectronApp from '../../electron-app.js';
 import { hexAToString, stringToHexA } from './utils/hexUtils.js';
 import { toPayload } from './utils/crc.js';
+import { Sample, Samples } from './types.js';
+import { Subscription } from 'rxjs';
+import { stringify } from 'csv-stringify';
+import * as fs from 'fs';
 
 export class BoschCISSDriver {
 
   boschCiss: BoschCiss | undefined;
+  fastModeSubscrition: Subscription | undefined;
 
-  constructor(port: number | 0) {
+  constructor() {
     this.init();
   }
 
@@ -66,8 +71,50 @@ export class BoschCISSDriver {
       }
     });
 
+    ipcMain.on("driver-BoschCISS-testWriteSomeDataToFileMethod-request", (event: IpcMainEvent, args: any) => {
+      this.writeSomeDataToFile();
+    });
+  }
 
 
+  writeSomeDataToFile() {
+    let packetsLimit: number = 10;
+    let packets: number = 0;
+
+    const writeableStream = fs.createWriteStream("hello.csv");
+
+    const columns = [
+      "timestamp",
+      "x",
+      "y",
+      "z"
+    ];
+
+    const stringifier = stringify({ header: true, columns: columns });
+    stringifier.pipe(writeableStream);
+
+    if (this.boschCiss) {
+      this.fastModeSubscrition = this.boschCiss.incomingData.subscribe((value: Samples) => {
+        value.forEach((element: Sample) => {
+          stringifier.write([
+            element.timestamp.toString(),
+            element.data.x.toString(),
+            element.data.y.toString(),
+            element.data.z.toString()
+          ])
+        });
+        if(packets >= packetsLimit) {
+          this.boschCiss?.stopFastMode().then(()=>{
+            this.fastModeSubscrition?.unsubscribe();
+            writeableStream.close();
+          })
+        }
+        packets++;
+      })
+      this.boschCiss.startFastMode();
+    }
 
   }
+
+
 }

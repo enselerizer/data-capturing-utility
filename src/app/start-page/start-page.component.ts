@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { DataProviderBoschService } from '../data-provider-bosch.service';
 
 @Component({
   selector: 'app-start-page',
@@ -8,4 +9,9 @@ import { Component } from '@angular/core';
 })
 export class StartPageComponent {
 
+  constructor(private dataProviderBocsh: DataProviderBoschService) {}
+
+  onClickBtn() {
+    this.dataProviderBocsh.testWriteSomeDataToFileMethod();
+  }
 }
