@@ -1,0 +1,38 @@
+<div class="container pt-3">
+  <h1>Настройки захвата данных</h1>
+  <div class="container">
+    @for (item of [1,2]; track $index) {
+    <div ngbAccordion class="row mb-2">
+      <div ngbAccordionItem>
+        <div ngbAccordionHeader ngbAccordionToggle class="p-2 container">
+          <div class="row">
+            <!-- <button ngbAccordionButton>First</button> -->
+            <div class="p-0 col d-flex align-items-center">
+              <div class="ms-1">
+                <span class="badge text-bg-secondary me-1">SensorID: {{$index}}</span>
+                <span class="badge text-bg-primary me-1">USB</span>
+                <span class="badge text-bg-primary">COM5</span>
+                <span class="ms-2">Bosch CISS</span>
+              </div>
+            </div>
+            <div class="p-0 btn-group col-auto">
+              <button class="btn btn-sm btn-primary" type="button">test</button>
+            </div>
+
+          </div>
+        </div>
+        <div ngbAccordionCollapse>
+          <div ngbAccordionBody>
+            <ng-template>
+              Content for the first item
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+
+
+
+</div>
