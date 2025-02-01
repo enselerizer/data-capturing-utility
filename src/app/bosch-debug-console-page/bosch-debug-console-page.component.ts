@@ -37,20 +37,20 @@ export class BoschDebugConsolePageComponent implements OnInit, OnDestroy {
   connectionError: boolean = false;
   subscriptions: Subscription[] = [];
 
-  constructor(private dataProviderBocsh: DataProviderBoschService, private ipc: IpcService, private cdr: ChangeDetectorRef) {
+  constructor(private dataProviderBosch: DataProviderBoschService, private ipc: IpcService, private cdr: ChangeDetectorRef) {
   }
 
   ngOnInit() {
-    this.subscriptions.push(this.dataProviderBocsh.connectionStatus.subscribe((value) => {
+    this.subscriptions.push(this.dataProviderBosch.connectionStatus.subscribe((value) => {
       this.connectionStatus = value;
       this.cdr.detectChanges();
 
     }));
-    this.subscriptions.push(this.dataProviderBocsh.connectionError.subscribe((value) => {
+    this.subscriptions.push(this.dataProviderBosch.connectionError.subscribe((value) => {
       this.connectionError = value;
       this.cdr.detectChanges();
     }));
-    this.subscriptions.push(this.dataProviderBocsh.cissPortsList.subscribe((portsList: number[]) => {
+    this.subscriptions.push(this.dataProviderBosch.cissPortsList.subscribe((portsList: number[]) => {
       this.COMPortList = portsList;
       if (portsList.length) {
         this.setCOMPort(portsList.at(-1)!);
@@ -58,21 +58,21 @@ export class BoschDebugConsolePageComponent implements OnInit, OnDestroy {
         this.setCOMPort(0);
       }
     }));
-    this.subscriptions.push(this.dataProviderBocsh.incomingDataRaw.subscribe((rawData: string) => {
+    this.subscriptions.push(this.dataProviderBosch.incomingDataRaw.subscribe((rawData: string) => {
       if(rawData) {
         this.logLine('<---- ' + rawData);
         this.cdr.detectChanges();
       }
 
     }))
-    this.subscriptions.push(this.dataProviderBocsh.debugTransmit.subscribe((transmittedMessage: string) => {
+    this.subscriptions.push(this.dataProviderBosch.debugTransmit.subscribe((transmittedMessage: string) => {
       if(transmittedMessage) {
         this.logLine ('----> ' + transmittedMessage);
         this.cdr.detectChanges();
       }
 
     }))
-    this.dataProviderBocsh.updateCissPortsList();
+    this.dataProviderBosch.updateCissPortsList();
   }
 
   ngOnDestroy() {
@@ -104,7 +104,7 @@ export class BoschDebugConsolePageComponent implements OnInit, OnDestroy {
   }
 
   updateCissPortsList() {
-    this.dataProviderBocsh.updateCissPortsList();
+    this.dataProviderBosch.updateCissPortsList();
   }
 
 
@@ -124,7 +124,7 @@ export class BoschDebugConsolePageComponent implements OnInit, OnDestroy {
 
 
   onClickConnectBtn() {
-    this.dataProviderBocsh.connect(this.COMPort).then(() => {
+    this.dataProviderBosch.connect(this.COMPort).then(() => {
       this.logLine(SystemLogMessage.CONNECTED);
     }, () => {
       this.logLine(SystemLogMessage.CONNECTION_FAILED);
@@ -132,14 +132,14 @@ export class BoschDebugConsolePageComponent implements OnInit, OnDestroy {
   }
 
   onClickDisconnectBtn() {
-    this.dataProviderBocsh.disconnect().then(() => {
+    this.dataProviderBosch.disconnect().then(() => {
       this.logLine(SystemLogMessage.DISCONNECTED);
     });
   }
 
   onClickSendBtn() {
     if (this.command) {
-      this.dataProviderBocsh.debugSendCommand(this.command).then(() => {
+      this.dataProviderBosch.debugSendCommand(this.command).then(() => {
         this.command = '';
       }, () => {
         this.logLine(SystemLogMessage.SEND_ERROR);
