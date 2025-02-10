@@ -6,6 +6,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng build --base-href ./ && npm run transpile:electron-all && electron-forge start",
+    "serve": "ng serve",
     "build": "ng build --base-href ./ && npm run transpile:electron-all",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",

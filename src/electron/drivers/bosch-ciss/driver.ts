@@ -74,6 +74,10 @@ export class BoschCISSDriver {
     ipcMain.on("driver-BoschCISS-testWriteSomeDataToFileMethod-request", (event: IpcMainEvent, args: any) => {
       this.writeSomeDataToFile();
     });
+
+    ipcMain.on("driver-BoschCISS-captureDataSeconds-request", (event: IpcMainEvent, args: any) => {
+      this.captureDataSeconds(args.fileName, args.seconds, args.trueTime); 
+    });
   }
 
 
@@ -114,6 +118,45 @@ export class BoschCISSDriver {
       this.boschCiss.startFastMode();
     }
 
+  }
+
+  captureDataSeconds(fileName: string, seconds: number, trueTime = false) {
+    
+    let packetsLimit: number = 125 * seconds;
+    let packets: number = 0;
+    fs.mkdirSync("./recordings/"+fileName+"_01-01-2025_00.00.00");
+    const writeableStream = fs.createWriteStream("./recordings/"+fileName+"_01-01-2025_00.00.00/sensor0.csv",{flags: 'w'});
+
+    const columns = [
+      "timestamp",
+      "x",
+      "y",
+      "z"
+    ];
+
+    const stringifier = stringify({ header: true, columns: columns });
+    stringifier.pipe(writeableStream);
+
+    if (this.boschCiss) {
+      this.fastModeSubscrition = this.boschCiss.incomingData.subscribe((value: Samples) => {
+        value.forEach((element: Sample) => {
+          stringifier.write([
+            element.timestamp.toString(),
+            element.data.x.toString(),
+            element.data.y.toString(),
+            element.data.z.toString()
+          ])
+        });
+        if(packets >= packetsLimit) {
+          this.boschCiss?.stopFastMode().then(()=>{
+            this.fastModeSubscrition?.unsubscribe();
+            writeableStream.close();
+          })
+        }
+        packets++;
+      })
+      this.boschCiss.startFastMode(trueTime);
+    }
   }
 
 

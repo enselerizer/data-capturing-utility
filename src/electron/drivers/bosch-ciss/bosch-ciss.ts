@@ -12,7 +12,9 @@ export class BoschCiss {
   private port: SerialPort;
   private enableDebug: boolean;
   private recordingBeginTimestamp: bigint = 0n;
-
+  private arriveTimestamp: bigint = 0n;
+  private trueTimeMode = false;
+  private firstDataFragmentArrivedFlag = false;
 
   public static getCISSPortList(): Promise<number[]> {
     return new Promise<number[]>((resolve) => {
@@ -50,9 +52,12 @@ export class BoschCiss {
     this.handleDataEvents();
   }
 
-  startFastMode() {
+  startFastMode(trueTimeMode = false) {
     this.write(toPayload([0xFE, 0x06, 0x80, 0x02, 0xF4, 0x01, 0x00, 0x00]), 0);
+
     this.recordingBeginTimestamp = process.hrtime.bigint();
+    this.trueTimeMode = trueTimeMode;
+
   }
 
   async stopFastMode() {
@@ -94,10 +99,19 @@ export class BoschCiss {
   private handleDataEvents(): void {
     this.port.on('data', (data: Buffer) => {
       this.incomingDataRaw.next(hexAToString(bufferToHexA(data)));
-      let arriveTimestamp: bigint = process.hrtime.bigint();
+
+
+      if(!this.trueTimeMode && this.firstDataFragmentArrivedFlag) { 
+        this.arriveTimestamp += 8000000n;
+      } else {
+        this.arriveTimestamp = process.hrtime.bigint() - this.recordingBeginTimestamp;
+      }
+
+      this.firstDataFragmentArrivedFlag = true;
+
       if (data && !this.isFastModeACK(data)) {
         let result = this.processDataBuffer(
-          data, arriveTimestamp - this.recordingBeginTimestamp
+          data, this.arriveTimestamp
         )
         if (result[0]) {
           this.incomingData.next(result);

@@ -108,5 +108,19 @@ export class DataProviderBoschService {
     this.ipc.send("driver-BoschCISS-testWriteSomeDataToFileMethod-request", {});
   }
 
+  captureDataSeconds(recordingName: string, seconds: number, trueTimeMode: boolean) {
+    return new Promise<void>((resolve, reject) => {
+      this.ipc.once("driver-BoschCISS-captureDataSeconds-response", (event: Electron.IpcMessageEvent, args: any) => {
+        if (!args.error) {
+          resolve();
+        } else {
+          reject();
+        }
+      })
+      this.ipc.send("driver-BoschCISS-captureDataSeconds-request", {fileName: recordingName, seconds, trueTime: trueTimeMode});
+    })
+  }
+
+
 
 }
