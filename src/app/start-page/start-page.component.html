@@ -12,7 +12,12 @@
       } @else if(connectionStatus === ConnectionStatus.connecting) {
         Подключение к устройству...
       } @else if(connectionStatus === ConnectionStatus.connected) {
-        <span class="text-success">Идет запись...</span>
+        @if (recordingInProcess) {
+          <span class="text-success">Идет запись...</span>
+        } @else {
+          Подключено к устройству <span class="badge text-bg-success">COM{{COMPort}}</span>
+        }
+        
       }
       
     </p>
@@ -25,9 +30,15 @@
         <label class="form-label">Длина записи (в секундах)</label>
         <input type="number" min="1" class="form-control" [(ngModel)]="secondsInput"/>
       </div>
+      <div class="form-check mt-2">
+        <input class="form-check-input" type="checkbox" [(ngModel)]="trueTimeMode" id="flexCheckDefault">
+        <label class="form-check-label" for="flexCheckDefault">
+          Использовать истинное время
+        </label>
+      </div>
     </div>
     <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-      <button [disabled]="COMPort<=0" (click)="onClickCaptureBtn()" type="button" class="btn btn-primary btn-lg px-4 gap-3">Тестовая запись</button>
+      <button [disabled]="COMPort <= 0 || recordingInProcess" (click)="onClickCaptureBtn()" type="button" class="btn btn-primary btn-lg px-4 gap-3">Тестовая запись</button>
       <button [disabled]="connectionStatus != ConnectionStatus.disconnected" type="button" (click)="onClickUpdateBtn()" class="btn btn-secondary btn-lg px-4">Обновить</button>
     </div>
   </div>

@@ -9,6 +9,8 @@ import { Subscription } from 'rxjs';
 import { stringify } from 'csv-stringify';
 import * as fs from 'fs';
 import { DateTime } from 'luxon';
+import { error } from 'console';
+import { exec, execSync } from 'child_process';
 
 export class BoschCISSDriver {
 
@@ -77,7 +79,7 @@ export class BoschCISSDriver {
     });
 
     ipcMain.on("driver-BoschCISS-captureDataSeconds-request", (event: IpcMainEvent, args: any) => {
-      this.captureDataSeconds(args.fileName, args.seconds, args.trueTime); 
+      this.captureDataSeconds(args.fileName, args.seconds, args.trueTime, event); 
     });
   }
 
@@ -121,7 +123,7 @@ export class BoschCISSDriver {
 
   }
 
-  captureDataSeconds(fileName: string, seconds: number, trueTime = false) {
+  captureDataSeconds(fileName: string, seconds: number, trueTime = false, event: IpcMainEvent) {
     
     let packetsLimit: number = 125 * seconds;
     let packets: number = 0;
@@ -153,6 +155,15 @@ export class BoschCISSDriver {
           this.boschCiss?.stopFastMode().then(()=>{
             this.fastModeSubscrition?.unsubscribe();
             writeableStream.close();
+
+
+            let exportPathAux = import.meta.dirname.split("\\");
+            let exportPath = exportPathAux.slice(0, exportPathAux.length-3).join("/")+dir.slice(1);
+
+
+
+            exec('start "" "'+exportPath+'"');
+            event.sender.send("driver-BoschCISS-captureDataSeconds-response", {error: false});
           })
         }
         packets++;

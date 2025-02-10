@@ -19,6 +19,8 @@ export class StartPageComponent implements OnInit, OnDestroy {
   connectionStatus: ConnectionStatus = ConnectionStatus.disconnected;
   nameInput: string = '';
   secondsInput: number = 1;
+  trueTimeMode: boolean = false;
+  recordingInProcess: boolean = false;
 
   constructor(private dataProviderBosch: DataProviderBoschService, private cdr: ChangeDetectorRef) {}
 
@@ -35,6 +37,7 @@ export class StartPageComponent implements OnInit, OnDestroy {
       } else {
         this.COMPort = 0;
       }
+      this.cdr.detectChanges();
     }));
     this.dataProviderBosch.updateCissPortsList();
   }
@@ -46,9 +49,12 @@ export class StartPageComponent implements OnInit, OnDestroy {
   }
 
   onClickCaptureBtn() {
-
+    this.recordingInProcess = true;
     this.dataProviderBosch.connect(this.COMPort).then(() => {
-      this.dataProviderBosch.captureDataSeconds(this.nameInput, this.secondsInput, false);
+      this.dataProviderBosch.captureDataSeconds(this.nameInput, this.secondsInput, this.trueTimeMode).then(() => {
+        this.recordingInProcess = false;
+        this.dataProviderBosch.updateCissPortsList();
+      });
     }, () => {
       
     })
