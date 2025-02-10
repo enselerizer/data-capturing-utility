@@ -15,7 +15,7 @@ import { exec, execSync } from 'child_process';
 export class BoschCISSDriver {
 
   boschCiss: BoschCiss | undefined;
-  fastModeSubscrition: Subscription | undefined;
+  fastModeSubscription: Subscription | undefined;
 
   constructor() {
     this.init();
@@ -79,7 +79,7 @@ export class BoschCISSDriver {
     });
 
     ipcMain.on("driver-BoschCISS-captureDataSeconds-request", (event: IpcMainEvent, args: any) => {
-      this.captureDataSeconds(args.fileName, args.seconds, args.trueTime, event); 
+      this.captureDataSeconds(args.fileName, args.seconds, args.trueTime, event);
     });
   }
 
@@ -101,7 +101,7 @@ export class BoschCISSDriver {
     stringifier.pipe(writeableStream);
 
     if (this.boschCiss) {
-      this.fastModeSubscrition = this.boschCiss.incomingData.subscribe((value: Samples) => {
+      this.fastModeSubscription = this.boschCiss.incomingData.subscribe((value: Samples) => {
         value.forEach((element: Sample) => {
           stringifier.write([
             element.timestamp.toString(),
@@ -112,7 +112,7 @@ export class BoschCISSDriver {
         });
         if(packets >= packetsLimit) {
           this.boschCiss?.stopFastMode().then(()=>{
-            this.fastModeSubscrition?.unsubscribe();
+            this.fastModeSubscription?.unsubscribe();
             writeableStream.close();
           })
         }
@@ -124,7 +124,7 @@ export class BoschCISSDriver {
   }
 
   captureDataSeconds(fileName: string, seconds: number, trueTime = false, event: IpcMainEvent) {
-    
+
     let packetsLimit: number = 125 * seconds;
     let packets: number = 0;
     let dir: string = app.getPath("userData")+"\\recordings\\"+fileName+"_"+DateTime.now().toFormat("dd-MM-yyyy_HH.mm.ss");
@@ -142,7 +142,7 @@ export class BoschCISSDriver {
     stringifier.pipe(writeableStream);
 
     if (this.boschCiss) {
-      this.fastModeSubscrition = this.boschCiss.incomingData.subscribe((value: Samples) => {
+      this.fastModeSubscription = this.boschCiss.incomingData.subscribe((value: Samples) => {
         value.forEach((element: Sample) => {
           stringifier.write([
             element.timestamp.toString(),
@@ -153,12 +153,12 @@ export class BoschCISSDriver {
         });
         if(packets >= packetsLimit) {
           this.boschCiss?.stopFastMode().then(()=>{
-            this.fastModeSubscrition?.unsubscribe();
+            this.fastModeSubscription?.unsubscribe();
             writeableStream.close();
 
 
             exec('start "" "'+dir+'"');
-            
+
             console.log();
 
 
