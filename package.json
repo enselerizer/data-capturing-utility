@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "ng": "ng",
-    "start": "ng build --base-href ./ && npm run transpile:electron-app && electron-forge start",
-    "build": "ng build --base-href ./ && npm run transpile:electron-app",
+    "start": "ng build --base-href ./ && npm run transpile:electron-all && electron-forge start",
+    "build": "ng build --base-href ./ && npm run transpile:electron-all",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "package": "npm run transpile:electron-forge && electron-forge package",

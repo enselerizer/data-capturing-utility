@@ -23,6 +23,7 @@ You'll need to install the following software:
 - Node.js
 - NPM (Node Package Manager)
 - Latest version of Python 3 (3.12 or newer) ⚠️
+- Latest version of Python 2 (2.7.18) ⚠️
 - Visual Studio 2017 or newer with C/C++ tools ⚠️
 
 ⚠️ **Note:** We use [Serialport package](https://github.com/serialport/node-serialport) for serial communication with sensors, which builds native binaries upon application build process using [node-gyp](https://github.com/nodejs/node-gyp). For this you currently need specified software.
