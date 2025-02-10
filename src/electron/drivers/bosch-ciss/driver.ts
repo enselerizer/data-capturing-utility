@@ -8,6 +8,7 @@ import { Sample, Samples } from './types.js';
 import { Subscription } from 'rxjs';
 import { stringify } from 'csv-stringify';
 import * as fs from 'fs';
+import { DateTime } from 'luxon';
 
 export class BoschCISSDriver {
 
@@ -124,8 +125,9 @@ export class BoschCISSDriver {
     
     let packetsLimit: number = 125 * seconds;
     let packets: number = 0;
-    fs.mkdirSync("./recordings/"+fileName+"_01-01-2025_00.00.00");
-    const writeableStream = fs.createWriteStream("./recordings/"+fileName+"_01-01-2025_00.00.00/sensor0.csv",{flags: 'w'});
+    let dir: string = "./recordings/"+fileName+"_"+DateTime.now().toFormat("dd-MM-yyyy_HH.mm.ss");
+    fs.mkdirSync(dir);
+    const writeableStream = fs.createWriteStream(dir+"/sensor0.csv",{flags: 'w'});
 
     const columns = [
       "timestamp",
