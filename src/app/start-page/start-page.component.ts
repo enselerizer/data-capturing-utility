@@ -51,7 +51,7 @@ export class StartPageComponent implements OnInit, OnDestroy {
   onClickCaptureBtn() {
     this.recordingInProcess = true;
     this.dataProviderBosch.connect(this.COMPort).then(() => {
-      this.dataProviderBosch.captureDataSeconds(this.nameInput, this.secondsInput, this.trueTimeMode).then(() => {
+      this.dataProviderBosch.captureDataSeconds(this.nameInput ? this.nameInput : 'noname', this.secondsInput, this.trueTimeMode).then(() => {
         this.recordingInProcess = false;
         this.dataProviderBosch.updateCissPortsList();
       });

@@ -1,4 +1,4 @@
-import { ipcMain, IpcMainEvent, IpcMessageEvent } from 'electron';
+import { app, ipcMain, IpcMainEvent, IpcMessageEvent } from 'electron';
 
 import { BoschCiss } from './bosch-ciss.js'
 import ElectronApp from '../../electron-app.js';
@@ -127,9 +127,9 @@ export class BoschCISSDriver {
     
     let packetsLimit: number = 125 * seconds;
     let packets: number = 0;
-    let dir: string = "./recordings/"+fileName+"_"+DateTime.now().toFormat("dd-MM-yyyy_HH.mm.ss");
-    fs.mkdirSync(dir);
-    const writeableStream = fs.createWriteStream(dir+"/sensor0.csv",{flags: 'w'});
+    let dir: string = app.getPath("userData")+"\\recordings\\"+fileName+"_"+DateTime.now().toFormat("dd-MM-yyyy_HH.mm.ss");
+    fs.mkdirSync(dir, { recursive: true });
+    const writeableStream = fs.createWriteStream(dir+"\\sensor0.csv",{flags: 'w'});
 
     const columns = [
       "timestamp",
@@ -157,12 +157,11 @@ export class BoschCISSDriver {
             writeableStream.close();
 
 
-            let exportPathAux = import.meta.dirname.split("\\");
-            let exportPath = exportPathAux.slice(0, exportPathAux.length-3).join("/")+dir.slice(1);
+            exec('start "" "'+dir+'"');
+            
+            console.log();
 
 
-
-            exec('start "" "'+exportPath+'"');
             event.sender.send("driver-BoschCISS-captureDataSeconds-response", {error: false});
           })
         }
